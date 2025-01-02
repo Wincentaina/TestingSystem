@@ -41,29 +41,33 @@
 			<scope>test</scope>
 		</dependency>
 
+
+		<!-- https://mvnrepository.com/artifact/com.github.docker-java/docker-java-api -->
 		<dependency>
 			<groupId>com.github.docker-java</groupId>
-			<artifactId>docker-java</artifactId>
-			<version>3.3.3</version>
+			<artifactId>docker-java-api</artifactId>
+			<version>3.4.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.github.docker-java/docker-java-core -->
 		<dependency>
 			<groupId>com.github.docker-java</groupId>
-			<artifactId>docker-java-transport-jersey</artifactId>
-			<version>3.3.3</version>
+			<artifactId>docker-java-core</artifactId>
+			<version>3.4.1</version>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/com.github.docker-java/docker-java-transport -->
 		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.1.1</version>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java-transport</artifactId>
+			<version>3.4.1</version>
 		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/com.github.docker-java/docker-java-transport-httpclient5 -->
 		<dependency>
 			<groupId>com.github.docker-java</groupId>
 			<artifactId>docker-java-transport-httpclient5</artifactId>
-			<version>3.2.3</version>
+			<version>3.4.1</version>
 		</dependency>
+
+
 
 	</dependencies>
 

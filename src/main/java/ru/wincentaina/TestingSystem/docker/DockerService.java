@@ -1,10 +1,13 @@
 package ru.wincentaina.TestingSystem.docker;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.model.Container;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.wincentaina.TestingSystem.dto.CodeRequestDto;
 import ru.wincentaina.TestingSystem.dto.ExecutionResultDto;
+
+import java.util.List;
 
 @Service
 public class DockerService {
@@ -18,6 +21,7 @@ public class DockerService {
 
     public ExecutionResultDto runCodeInContainer(CodeRequestDto request) {
         System.out.println("Hi");
+        List<Container> containers = dockerClient.listContainersCmd().exec();
         return new ExecutionResultDto("", "", 0);
     }
 

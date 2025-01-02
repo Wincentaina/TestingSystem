@@ -1,6 +1,8 @@
 package ru.wincentaina.TestingSystem.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +28,12 @@ public class CodeExecutionController {
 //        return ResponseEntity.ok(codeExecutionService.executeCode(request));
 //    }
     @PostMapping("/execute")
-    public void executeCode(@RequestBody CodeRequestDto request) {
-        ExecutionResultDto result = codeExecutionService.executeCode(request);
+    public ResponseEntity<ExecutionResultDto> executeCode(@RequestBody CodeRequestDto request) {
+        try {
+            ExecutionResultDto result = codeExecutionService.executeCode(request);
+            return new ResponseEntity<>(result, HttpStatus.OK);  // Возвращаем успешный результат
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ExecutionResultDto(null, "Error: " + e.getMessage(), -1), HttpStatus.INTERNAL_SERVER_ERROR);  // Возвращаем ошибку
+        }
     }
 }
