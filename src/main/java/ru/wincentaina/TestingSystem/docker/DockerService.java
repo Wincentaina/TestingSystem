@@ -20,7 +20,6 @@ public class DockerService {
     }
 
     public ExecutionResultDto runCodeInContainer(CodeRequestDto request) {
-        System.out.println("Hi");
         List<Container> containers = dockerClient.listContainersCmd().exec();
         return new ExecutionResultDto("", "", 0);
     }
