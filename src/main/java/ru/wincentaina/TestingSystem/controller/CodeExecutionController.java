@@ -23,10 +23,6 @@ public class CodeExecutionController {
         this.codeExecutionService = codeExecutionService;
     }
 
-//    @PostMapping("/execute")
-//    public ResponseEntity<ExecutionResultDto> executeCode(@RequestBody CodeRequestDto request) {
-//        return ResponseEntity.ok(codeExecutionService.executeCode(request));
-//    }
     @PostMapping("/execute")
     public ResponseEntity<ExecutionResultDto> executeCode(@RequestBody CodeRequestDto request) {
         try {
