@@ -18,7 +18,7 @@ public class MainTestingTool {
         Class<?> userCompiledClass = dk.getDynamicClass();
 
         // парсим прешедший json
-        File inFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/inp.json");
+        File inFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/input_data/inp.json");
 
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -34,7 +34,7 @@ public class MainTestingTool {
                 TestSuitRunner suitRunner = new TestSuitRunner(task, userCompiledClass);
                 List<TestResult> results = suitRunner.runSuit();
                 objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-                File outFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/out.json");
+                File outFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/output_data/out.json");
                 try {
                     objectMapper.writeValue(outFile, results);
                 } catch (IOException e) {

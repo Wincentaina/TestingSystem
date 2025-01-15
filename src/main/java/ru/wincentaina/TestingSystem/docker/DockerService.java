@@ -11,11 +11,15 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 import ru.wincentaina.TestingSystem.dto.CodeRequestDto;
 import ru.wincentaina.TestingSystem.dto.ExecutionResultDto;
+import ru.wincentaina.TestingSystem.helpers.Helpers;
+import ru.wincentaina.TestingSystem.model.Task;
+import ru.wincentaina.TestingSystem.storage.postgres.Tasks;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class DockerService {
@@ -69,8 +73,26 @@ public class DockerService {
         }
     }
 
-    public ExecutionResultDto runCodeInContainer(CodeRequestDto request) {
+    public ExecutionResultDto runCodeInContainer(CodeRequestDto request) throws Exception {
+        int taskId = request.getTaskId();
+        Task task = Tasks.taskById(taskId);
+        final String BASE_PATH = "./src/main/java/ru/wincentaina/TestingSystem/docker" ;
 
+        // подготовим временные директории для вмонтирования в контейнер
+        String tmpDirPath = BASE_PATH + "/tmp";
+        Helpers.createDir(tmpDirPath);
+
+        String uniqueID = UUID.randomUUID().toString();
+        String tmpInpDirPath = BASE_PATH + "/tmp/" + uniqueID + "_input";
+        String tmpOutDirPath = BASE_PATH + "/tmp/" + uniqueID + "_output";
+        Helpers.createDir(tmpInpDirPath);
+        Helpers.createDir(tmpOutDirPath);
+
+        // запускаем контейнер и монтируем в него директории
+
+
+
+//        Helpers.deleteDirectory(tmpDirPath);
 
         return new ExecutionResultDto("", "", 0);
     }

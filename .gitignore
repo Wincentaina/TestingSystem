@@ -34,5 +34,8 @@ build/
 .DS_Store
 /src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/Main.java
 /src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/Main.class
-/src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/inp.json
-/src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/out.json
+/src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/input_data/inp.json
+/src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/output_data/out.json
+/src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/input_data/
+/src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/output_data/
+/src/main/java/ru/wincentaina/TestingSystem/docker/tmp/
