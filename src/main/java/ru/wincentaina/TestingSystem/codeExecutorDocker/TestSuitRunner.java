@@ -1,28 +1,23 @@
 package ru.wincentaina.TestingSystem.codeExecutorDocker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestSuitRunner {
     private Task task;
-    private List<Test> suit;
     private Class<?> executableClass;
 
-    public TestSuitRunner(Task task, List<Test> suit, Class<?> executableClass) {
+    public TestSuitRunner(Task task, Class<?> executableClass) {
         this.task = task;
-        this.suit = suit;
         this.executableClass = executableClass;
     }
 
-    public TestSuitResults runSuit() {
-        TestSuitResults results = new TestSuitResults();
-        for (Test test: suit) {
+    public List<TestResult> runSuit() {
+        List<TestResult> results = new ArrayList<>();
+        for (Test test: task.getTests()) {
             RunTest runner = new RunTest(test, executableClass);
-            boolean ok = runner.run();
-            if (ok) {
-                results.pass();
-            } else {
-                results.fail();
-            }
+            TestResult result = runner.run();
+            results.add(result);
         }
         return results;
     }

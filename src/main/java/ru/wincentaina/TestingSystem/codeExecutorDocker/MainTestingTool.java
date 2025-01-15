@@ -1,6 +1,10 @@
 package ru.wincentaina.TestingSystem.codeExecutorDocker;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -13,23 +17,35 @@ public class MainTestingTool {
         dk.compile();
         Class<?> userCompiledClass = dk.getDynamicClass();
 
-        // MOCK DATA
-        Task task = new Task(1, "firstTask");
-        List<Test> suit = new ArrayList<>();
+        // парсим прешедший json
+        File inFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/inp.json");
 
-        Test test1 = new Test(2, "inp", "inp", 100);
-        suit.add(test1);
-        Test test2 = new Test(4, "inp", "out", 100);
-        suit.add(test2);
-        Test test3 = new Test(7, "inp2", "inp", 100);
-        suit.add(test3);
-        Test test4 = new Test(7, "inp", "inp", 100);
-        suit.add(test4);
-        // ----
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        TestSuitRunner suitRunner = new TestSuitRunner(task, suit, userCompiledClass);
-        TestSuitResults results = suitRunner.runSuit();
-        System.out.println(results.getAllTests() + " / " + results.getPassedTests() + " / " + results.getFailedTests());
+        Task task = null;
+        try {
+            task = objectMapper.readValue(inFile, Task.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (task != null) {
+            try {
+                TestSuitRunner suitRunner = new TestSuitRunner(task, userCompiledClass);
+                List<TestResult> results = suitRunner.runSuit();
+                objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+                File outFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/out.json");
+                try {
+                    objectMapper.writeValue(outFile, results);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("проблема с загрузкой тестов");
+        }
 
         File compiledFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/Main.class");
         compiledFile.delete();

@@ -20,7 +20,7 @@ public class RunTest {
         return input.replaceFirst("\\n$", "");
     }
 
-    public boolean run() {
+    public TestResult run() {
         ByteArrayInputStream testInput = new ByteArrayInputStream(test.getInput().getBytes());
         ByteArrayOutputStream testOutput = new ByteArrayOutputStream();
         PrintStream originalOut = System.out;
@@ -40,10 +40,7 @@ public class RunTest {
             System.setOut(originalOut);
         }
 
-        if (removeLastNewline(testOutput.toString()).equals(test.getOutput())) {
-            return true;
-        } else {
-            return false;
-        }
+        // TODO: добавить обработку ошибок и подсчет timeout
+        return new TestResult("ok", removeLastNewline(testOutput.toString()), 100);
     }
 }
