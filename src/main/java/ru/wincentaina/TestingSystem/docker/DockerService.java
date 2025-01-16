@@ -66,7 +66,7 @@ public class DockerService {
                 }
             };
 
-            String imageId = dockerClient.buildImageCmd(Paths.get("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/Dockerfile").toFile())
+            String imageId = dockerClient.buildImageCmd(Paths.get("./src/main/java/codeExecutorDocker/Dockerfile").toFile())
                     .withTags(Set.of("java-base"))
                     .exec(callback)
                     .awaitImageId();
@@ -82,12 +82,13 @@ public class DockerService {
     public ExecutionResultDto runCodeInContainer(CodeRequestDto request) throws Exception {
         int taskId = request.getTaskId();
         Task task = Tasks.taskById(taskId);
-        final String BASE_PATH = Paths.get( "./src/main/java/ru/wincentaina/TestingSystem/docker").toAbsolutePath().toString() ;
+        final String BASE_PATH = Paths.get( "./src/main/java/ru/wincentaina/TestingSystem/docker").toAbsolutePath().normalize().toString();
 
         // подготовим временные директории для вмонтирования в контейнер
         String tmpDirPath = BASE_PATH + "/tmp";
         Helpers.createDir(tmpDirPath);
 
+        // TODO: добавить уникальности в пути, тк иногда могут совпадать
         long unixTime = Instant.now().getEpochSecond();
         String uniqueTS = String.valueOf(unixTime);
         String tmpInpDirPath = BASE_PATH + "/tmp/" + uniqueTS + "_input";
@@ -121,7 +122,7 @@ public class DockerService {
 
         String imageName = "java-base";
         CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
-                .withEnv("USER_CODE=import java.util.Scanner; public class Main { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
+                .withEnv("USER_CODE=import java.util.Scanner; public class UserClass { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
                 .withHostConfig(new HostConfig()
                         .withBinds(
                                 // Монтируем локальные директории в контейнер
