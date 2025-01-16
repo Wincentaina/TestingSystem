@@ -6,9 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainTestingTool {
@@ -18,7 +16,7 @@ public class MainTestingTool {
         Class<?> userCompiledClass = dk.getDynamicClass();
 
         // парсим прешедший json
-        File inFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/input_data/inp.json");
+        File inFile = new File("/app/input_data/inp.json");
 
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -34,7 +32,7 @@ public class MainTestingTool {
                 TestSuitRunner suitRunner = new TestSuitRunner(task, userCompiledClass);
                 List<TestResult> results = suitRunner.runSuit();
                 objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-                File outFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/output_data/out.json");
+                File outFile = new File("/app/output_data/out.json");
                 try {
                     objectMapper.writeValue(outFile, results);
                 } catch (IOException e) {
@@ -47,7 +45,5 @@ public class MainTestingTool {
             System.out.println("проблема с загрузкой тестов");
         }
 
-        File compiledFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/Main.class");
-        compiledFile.delete();
     }
 }

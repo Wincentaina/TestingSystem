@@ -1,6 +1,10 @@
-FROM --platform=linux/amd64 eclipse-temurin:17-jre-alpine
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+FROM --platform=linux/amd64 eclipse-temurin:17-jdk-alpine
+#RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
-RUN chmod 700 /app
-USER appuser
-CMD tail -f /dev/null
+COPY . .
+COPY start.sh /app/start.sh
+RUN chmod +x start.sh
+COPY TestingSystem.jar /app/TestingSystem.jar
+RUN chmod +x TestingSystem.jar
+#USER appuser
+CMD ["/bin/sh", "start.sh"]

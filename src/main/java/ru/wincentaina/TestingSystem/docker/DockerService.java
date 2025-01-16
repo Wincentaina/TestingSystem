@@ -2,7 +2,12 @@ package ru.wincentaina.TestingSystem.docker;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageResultCallback;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.StartContainerCmd;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.BuildResponseItem;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
@@ -18,6 +23,7 @@ import ru.wincentaina.TestingSystem.storage.postgres.Tasks;
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -76,23 +82,70 @@ public class DockerService {
     public ExecutionResultDto runCodeInContainer(CodeRequestDto request) throws Exception {
         int taskId = request.getTaskId();
         Task task = Tasks.taskById(taskId);
-        final String BASE_PATH = "./src/main/java/ru/wincentaina/TestingSystem/docker" ;
+        final String BASE_PATH = Paths.get( "./src/main/java/ru/wincentaina/TestingSystem/docker").toAbsolutePath().toString() ;
 
         // подготовим временные директории для вмонтирования в контейнер
         String tmpDirPath = BASE_PATH + "/tmp";
         Helpers.createDir(tmpDirPath);
 
-        String uniqueID = UUID.randomUUID().toString();
-        String tmpInpDirPath = BASE_PATH + "/tmp/" + uniqueID + "_input";
-        String tmpOutDirPath = BASE_PATH + "/tmp/" + uniqueID + "_output";
+        long unixTime = Instant.now().getEpochSecond();
+        String uniqueTS = String.valueOf(unixTime);
+        String tmpInpDirPath = BASE_PATH + "/tmp/" + uniqueTS + "_input";
+        String tmpOutDirPath = BASE_PATH + "/tmp/" + uniqueTS + "_output";
         Helpers.createDir(tmpInpDirPath);
         Helpers.createDir(tmpOutDirPath);
 
+        // создаем inp.json и out.json. В inp входные данные
+        Helpers.createFile(tmpInpDirPath + "/inp.json");
+        Helpers.createFile(tmpOutDirPath + "/out.json");
+
+        // запишим mock данные
+        Helpers.writeToFile(tmpInpDirPath + "/inp.json", "{\n" +
+                "  \"taskId\": 3,\n" +
+                "  \"description\": \"my description\",\n" +
+                "  \"tests\": [\n" +
+                "    {\n" +
+                "      \"testId\": 2,\n" +
+                "      \"input\": \"inp2\",\n" +
+                "      \"timeoutMs\": 100\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"testId\": 5,\n" +
+                "      \"input\": \"inp5\",\n" +
+                "      \"timeoutMs\": 20\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}");
+
         // запускаем контейнер и монтируем в него директории
 
+        String imageName = "java-base";
+        CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
+                .withEnv("USER_CODE=import java.util.Scanner; public class Main { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
+                .withHostConfig(new HostConfig()
+                        .withBinds(
+                                // Монтируем локальные директории в контейнер
+                                new Bind(tmpInpDirPath, new Volume("/app/input_data")),
+                                new Bind(tmpOutDirPath, new Volume("/app/output_data"))
+                        )
+                )
+                .withCmd()
+                .exec();
 
+        System.out.println("Создан контейнер с ID: " + container.getId());
 
-//        Helpers.deleteDirectory(tmpDirPath);
+        try (StartContainerCmd startCmd = dockerClient.startContainerCmd(container.getId())) {
+            startCmd.exec();
+        }
+        System.out.println("Контейнер запущен.");
+
+        // Ожидание завершения работы контейнера
+        dockerClient.waitContainerCmd(container.getId()).start().awaitStatusCode();
+
+        System.out.println("Контейнер завершил выполнение.");
+
+//        Helpers.deleteDirectory(tmpInpDirPath);
+//        Helpers.deleteDirectory(tmpOutDirPath);
 
         return new ExecutionResultDto("", "", 0);
     }
