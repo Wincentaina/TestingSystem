@@ -88,8 +88,6 @@ public class DockerService {
         String tmpDirPath = BASE_PATH + "/tmp";
         Helpers.createDir(tmpDirPath);
 
-        // TODO: добавить уникальности в пути, тк иногда могут совпадать
-        long unixTime = Instant.now().getEpochSecond();
         String uniqueName = UUID.randomUUID().toString().replaceAll("-", "");
         String tmpInpDirPath = BASE_PATH + "/tmp/" + uniqueName + "_input";
         String tmpOutDirPath = BASE_PATH + "/tmp/" + uniqueName + "_output";
@@ -100,7 +98,7 @@ public class DockerService {
         Helpers.createFile(tmpInpDirPath + "/inp.json");
         Helpers.createFile(tmpOutDirPath + "/out.json");
 
-        // запишим mock данные
+        // запишем mock данные
         Helpers.writeToFile(tmpInpDirPath + "/inp.json", "{\n" +
                 "  \"taskId\": 3,\n" +
                 "  \"description\": \"my description\",\n" +
@@ -119,7 +117,6 @@ public class DockerService {
                 "}");
 
         // запускаем контейнер и монтируем в него директории
-
         String imageName = "java-base";
         CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
                 .withEnv("USER_CODE=import java.util.Scanner; public class UserClass { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
@@ -142,6 +139,8 @@ public class DockerService {
 
         // Ожидание завершения работы контейнера
         dockerClient.waitContainerCmd(container.getId()).start().awaitStatusCode();
+
+        // 
 
         System.out.println("Контейнер завершил выполнение.");
 
