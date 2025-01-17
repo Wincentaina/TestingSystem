@@ -90,9 +90,9 @@ public class DockerService {
 
         // TODO: добавить уникальности в пути, тк иногда могут совпадать
         long unixTime = Instant.now().getEpochSecond();
-        String uniqueTS = String.valueOf(unixTime);
-        String tmpInpDirPath = BASE_PATH + "/tmp/" + uniqueTS + "_input";
-        String tmpOutDirPath = BASE_PATH + "/tmp/" + uniqueTS + "_output";
+        String uniqueName = UUID.randomUUID().toString().replaceAll("-", "");
+        String tmpInpDirPath = BASE_PATH + "/tmp/" + uniqueName + "_input";
+        String tmpOutDirPath = BASE_PATH + "/tmp/" + uniqueName + "_output";
         Helpers.createDir(tmpInpDirPath);
         Helpers.createDir(tmpOutDirPath);
 
