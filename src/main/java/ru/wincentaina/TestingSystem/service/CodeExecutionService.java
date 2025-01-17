@@ -4,6 +4,9 @@ import org.springframework.stereotype.Service;
 import ru.wincentaina.TestingSystem.docker.DockerService;
 import ru.wincentaina.TestingSystem.dto.CodeRequestDto;
 import ru.wincentaina.TestingSystem.dto.ExecutionResultDto;
+import ru.wincentaina.TestingSystem.model.Task;
+import ru.wincentaina.TestingSystem.storage.postgres.Storage;
+import ru.wincentaina.TestingSystem.storage.postgres.Tasks;
 
 @Service
 public class CodeExecutionService {
@@ -13,7 +16,7 @@ public class CodeExecutionService {
         this.dockerService = dockerService;
     }
 
-    public ExecutionResultDto executeCode(CodeRequestDto request) {
+    public ExecutionResultDto executeCode(CodeRequestDto request) throws Exception {
         // Передача кода в Docker для выполнения
         return dockerService.runCodeInContainer(request);
     }

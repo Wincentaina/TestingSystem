@@ -1,4 +1,4 @@
-package ru.wincentaina.TestingSystem.codeExecutorDocker;
+package codeExecutorDocker;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -21,7 +21,7 @@ public class DynamicCompiler {
     }
 
     public void compile() throws ClassNotFoundException, MalformedURLException {
-        File sourceFile = new File("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/Main.java");
+        File sourceFile = new File("UserClass.java");
         // Компиляция кода
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         int compilationResult = compiler.run(null, null, null, sourceFile.getPath());
@@ -37,7 +37,7 @@ public class DynamicCompiler {
 
         // Загрузка скомпилированного класса
         URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{tempDir.toURI().toURL()});
-        Class<?> clazz = Class.forName("Main", true, classLoader);
+        Class<?> clazz = Class.forName("UserClass", true, classLoader);
         setDynamicClass(clazz);
     }
 
