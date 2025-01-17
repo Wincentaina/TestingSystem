@@ -66,7 +66,7 @@ public class DockerService {
                 }
             };
 
-            String imageId = dockerClient.buildImageCmd(Paths.get("./src/main/java/codeExecutorDocker/Dockerfile").toFile())
+            String imageId = dockerClient.buildImageCmd(Paths.get("./src/main/java/ru/wincentaina/TestingSystem/codeExecutorDocker/Dockerfile").toFile())
                     .withTags(Set.of("java-base"))
                     .exec(callback)
                     .awaitImageId();
@@ -140,7 +140,7 @@ public class DockerService {
         // Ожидание завершения работы контейнера
         dockerClient.waitContainerCmd(container.getId()).start().awaitStatusCode();
 
-        // 
+        //
 
         System.out.println("Контейнер завершил выполнение.");
 

@@ -1,4 +1,4 @@
-package codeExecutorDocker;
+package ru.wincentaina.TestingSystem.codeExecutorDocker;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
