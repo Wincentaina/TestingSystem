@@ -17,4 +17,4 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-java -cp /app/out:.:/app/libs/jackson-core-2.18.2.jar:/app/libs/jackson-databind-2.18.2.jar:/app/libs/jackson-annotations-2.18.2.jar codeExecutorDocker.Main
+java -cp /app/out:.:/app/libs/jackson-core-2.18.2.jar:/app/libs/jackson-databind-2.18.2.jar:/app/libs/jackson-annotations-2.18.2.jar ru.wincentaina.TestingSystem.codeExecutorDocker.Main

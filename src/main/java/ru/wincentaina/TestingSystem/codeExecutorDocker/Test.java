@@ -1,4 +1,4 @@
-package codeExecutorDocker;
+package ru.wincentaina.TestingSystem.codeExecutorDocker;
 
 public class Test {
     private int testId;

@@ -1,4 +1,4 @@
-package codeExecutorDocker;
+package ru.wincentaina.TestingSystem.codeExecutorDocker;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
