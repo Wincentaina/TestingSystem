@@ -97,15 +97,15 @@ public class DockerService {
 
     public ExecutionResultDto runCodeInContainer(CodeRequestDto request) throws Exception {
         int taskId = request.getTaskId();
-//        Task task1 = taskService.createTask("desc", )
-        Test test1 = testService.createTest(1, "inp", "inp", 100);
-        Test test2 = testService.createTest(1, "inp1", "inp2", 20);
-        List<Test> tests = new ArrayList<>();
-        tests.add(test1);
-        tests.add(test2);
-        taskService.createTask("decription", tests);
+        // TEST
+//        Task task1 = taskService.createTask("desc");
+//        Test test1 = testService.createTest(1, "inp", "inp", 100);
+//        Test test2 = testService.createTest(1, "inp1", "inp2", 20);
         Optional<Task> task = taskService.taskById(taskId);
-        System.out.println("DHSKDHSJDSD: " + task.toString());
+        if (task.isEmpty()) {
+            throw new IllegalArgumentException("Task with ID " + taskId + " not found");
+        }
+
         final String BASE_PATH = Paths.get( "./src/main/java/ru/wincentaina/TestingSystem/docker").toAbsolutePath().normalize().toString();
 
         // подготовим временные директории для вмонтирования в контейнер

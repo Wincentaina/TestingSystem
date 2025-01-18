@@ -23,7 +23,7 @@ public class TaskService {
     public Optional<Task> taskById(int id) {
         return taskRepository.findById((long) id);
     }
-    
+
     // Создать задачу с тестами
     public Task createTask(String description) {
         Task task = new Task();
