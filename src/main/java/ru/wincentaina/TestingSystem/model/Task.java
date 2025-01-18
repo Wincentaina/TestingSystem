@@ -1,24 +1,33 @@
 package ru.wincentaina.TestingSystem.model;
 
+import jakarta.persistence.*;
 import java.util.List;
 
+@Entity
 public class Task {
-    private int taskId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+
     private String description;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Test> tests;
 
+    public Task() {}
+
     public Task(int taskId, String description, List<Test> tests) {
-        this.taskId = taskId;
+        this.id = taskId;
         this.description = description;
         this.tests = tests;
     }
 
-    public int getTaskId() {
-        return taskId;
+    public int getId() {
+        return id;
     }
 
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getDescription() {
