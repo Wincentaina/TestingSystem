@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
-public class Main {
+public class MainTesting {
     public static void main(String[] args) throws MalformedURLException, ClassNotFoundException {
         DynamicCompiler dk = new DynamicCompiler();
         dk.compile();

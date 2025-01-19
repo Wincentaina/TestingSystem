@@ -142,7 +142,7 @@ public class DockerService {
         // запускаем контейнер и монтируем в него директории
         String imageName = "java-base";
         CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
-                .withEnv("USER_CODE=import java.util.Scanner; public class UserClass { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
+                .withEnv("USER_CODE=import java.util.Scanner; public class Main { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
                 .withHostConfig(new HostConfig()
                         .withBinds(
                                 // Монтируем локальные директории в контейнер
