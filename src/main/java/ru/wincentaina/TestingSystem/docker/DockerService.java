@@ -1,5 +1,7 @@
 package ru.wincentaina.TestingSystem.docker;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -17,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.wincentaina.TestingSystem.dto.CodeRequestDto;
 import ru.wincentaina.TestingSystem.dto.ExecutionResultDto;
+import ru.wincentaina.TestingSystem.dto.TestDTO;
+import ru.wincentaina.TestingSystem.dto.TestInputDTO;
 import ru.wincentaina.TestingSystem.helpers.Helpers;
 import ru.wincentaina.TestingSystem.model.Task;
 import ru.wincentaina.TestingSystem.model.Test;
@@ -25,10 +29,12 @@ import ru.wincentaina.TestingSystem.service.TaskService;
 import ru.wincentaina.TestingSystem.service.TestService;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DockerService {
@@ -122,21 +128,19 @@ public class DockerService {
         Helpers.createFile(tmpInpDirPath + "/inp.json");
         Helpers.createFile(tmpOutDirPath + "/out.json");
 
-        // TODO: получить тесты из task (все кроме поля output)
-        // запишем mock данные
-        Helpers.writeToFile(tmpInpDirPath + "/inp.json", "[\n" +
-                "    {\n" +
-                "      \"id\": 2,\n" +
-                "      \"input\": \"inp2\",\n" +
-                "      \"timeoutMs\": 100\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"id\": 5,\n" +
-                "      \"input\": \"inp5\",\n" +
-                "      \"timeoutMs\": 20\n" +
-                "    }\n" +
-                "  ] ");
+        List<Test> tests = testService.testsByTaskId(taskId);
 
+        List<TestInputDTO> testInputDTOList = tests.stream()
+                .map(test -> new TestInputDTO(test.getId(), test.getInput(), test.getTimeoutMs()))
+                .collect(Collectors.toList());
+
+        // Преобразуем List<TestInputDTO> в JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(tmpInpDirPath + "/inp.json"), testInputDTOList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // TODO: получить код из запроса
 
         // запускаем контейнер и монтируем в него директории
@@ -163,9 +167,22 @@ public class DockerService {
         // Ожидание завершения работы контейнера
         dockerClient.waitContainerCmd(container.getId()).start().awaitStatusCode();
 
-        // TODO: проверка результата
-
         System.out.println("Контейнер завершил выполнение.");
+
+//        File outFile = new File(tmpOutDirPath + "/out.json");
+//        ObjectMapper objectMapper = new ObjectMapper();
+//
+//        List<TestDTO> results = null;
+//        try {
+//            results = objectMapper.readValue(outFile, new TypeReference<List<TestDTO>>() {});
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if (results != null) {
+//            // TODO: проверка результата: сравнение с объектами из
+//        }
+
 
 //        Helpers.deleteDirectory(tmpInpDirPath);
 //        Helpers.deleteDirectory(tmpOutDirPath);
