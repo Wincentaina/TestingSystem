@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestSuitRunner {
-    private Task task;
+    private List<Test> tests;
     private Class<?> executableClass;
 
-    public TestSuitRunner(Task task, Class<?> executableClass) {
-        this.task = task;
+    public TestSuitRunner(List<Test> tests, Class<?> executableClass) {
+        this.tests = tests;
         this.executableClass = executableClass;
     }
 
     public List<TestResult> runSuit() {
         List<TestResult> results = new ArrayList<>();
-        for (Test test: task.getTests()) {
+        for (Test test: tests) {
             RunTest runner = new RunTest(test, executableClass);
             TestResult result = runner.run();
             results.add(result);

@@ -124,22 +124,18 @@ public class DockerService {
 
         // TODO: получить тесты из task (все кроме поля output)
         // запишем mock данные
-        Helpers.writeToFile(tmpInpDirPath + "/inp.json", "{\n" +
-                "  \"taskId\": 3,\n" +
-                "  \"description\": \"my description\",\n" +
-                "  \"tests\": [\n" +
+        Helpers.writeToFile(tmpInpDirPath + "/inp.json", "[\n" +
                 "    {\n" +
-                "      \"testId\": 2,\n" +
+                "      \"id\": 2,\n" +
                 "      \"input\": \"inp2\",\n" +
                 "      \"timeoutMs\": 100\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"testId\": 5,\n" +
+                "      \"id\": 5,\n" +
                 "      \"input\": \"inp5\",\n" +
                 "      \"timeoutMs\": 20\n" +
                 "    }\n" +
-                "  ]\n" +
-                "}");
+                "  ] ");
 
         // TODO: получить код из запроса
 
