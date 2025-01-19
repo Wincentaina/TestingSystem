@@ -5,8 +5,6 @@ import ru.wincentaina.TestingSystem.docker.DockerService;
 import ru.wincentaina.TestingSystem.dto.CodeRequestDto;
 import ru.wincentaina.TestingSystem.dto.ExecutionResultDto;
 import ru.wincentaina.TestingSystem.model.Task;
-import ru.wincentaina.TestingSystem.storage.postgres.Storage;
-import ru.wincentaina.TestingSystem.storage.postgres.Tasks;
 
 @Service
 public class CodeExecutionService {

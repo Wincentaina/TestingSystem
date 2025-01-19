@@ -1,24 +1,27 @@
 package ru.wincentaina.TestingSystem.model;
 
-import java.util.List;
+import jakarta.persistence.*;
 
+@Entity
 public class Task {
-    private int taskId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
     private String description;
-    private List<Test> tests;
 
-    public Task(int taskId, String description, List<Test> tests) {
-        this.taskId = taskId;
+    public Task() {}
+
+    public Task(int taskId, String description){
+        this.id = taskId;
         this.description = description;
-        this.tests = tests;
     }
 
-    public int getTaskId() {
-        return taskId;
+    public int getId() {
+        return id;
     }
 
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getDescription() {
@@ -27,13 +30,5 @@ public class Task {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public List<Test> getTests() {
-        return tests;
-    }
-
-    public void setTests(List<Test> tests) {
-        this.tests = tests;
     }
 }

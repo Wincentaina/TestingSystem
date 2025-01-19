@@ -13,27 +13,43 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.wincentaina.TestingSystem.dto.CodeRequestDto;
 import ru.wincentaina.TestingSystem.dto.ExecutionResultDto;
 import ru.wincentaina.TestingSystem.helpers.Helpers;
 import ru.wincentaina.TestingSystem.model.Task;
-import ru.wincentaina.TestingSystem.storage.postgres.Tasks;
+import ru.wincentaina.TestingSystem.model.Test;
+import ru.wincentaina.TestingSystem.repository.TaskRepository;
+import ru.wincentaina.TestingSystem.service.TaskService;
+import ru.wincentaina.TestingSystem.service.TestService;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class DockerService {
 
     public DockerClient dockerClient;
+    private TaskService taskService;
+
+    private TestService testService;
 
     public void setDockerClient(DockerClient dockerClient) {
         this.dockerClient = dockerClient;
+    }
+
+    @Autowired
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Autowired
+    public void setTestService(TestService testService) {
+        this.testService = testService;
     }
 
     @PostConstruct
@@ -81,7 +97,15 @@ public class DockerService {
 
     public ExecutionResultDto runCodeInContainer(CodeRequestDto request) throws Exception {
         int taskId = request.getTaskId();
-        Task task = Tasks.taskById(taskId);
+        // TEST
+//        Task task1 = taskService.createTask("desc");
+//        Test test1 = testService.createTest(1, "inp", "inp", 100);
+//        Test test2 = testService.createTest(1, "inp1", "inp2", 20);
+        Optional<Task> task = taskService.taskById(taskId);
+        if (task.isEmpty()) {
+            throw new IllegalArgumentException("Task with ID " + taskId + " not found");
+        }
+
         final String BASE_PATH = Paths.get( "./src/main/java/ru/wincentaina/TestingSystem/docker").toAbsolutePath().normalize().toString();
 
         // подготовим временные директории для вмонтирования в контейнер
@@ -98,6 +122,7 @@ public class DockerService {
         Helpers.createFile(tmpInpDirPath + "/inp.json");
         Helpers.createFile(tmpOutDirPath + "/out.json");
 
+        // TODO: получить тесты из task (все кроме поля output)
         // запишем mock данные
         Helpers.writeToFile(tmpInpDirPath + "/inp.json", "{\n" +
                 "  \"taskId\": 3,\n" +
@@ -115,6 +140,8 @@ public class DockerService {
                 "    }\n" +
                 "  ]\n" +
                 "}");
+
+        // TODO: получить код из запроса
 
         // запускаем контейнер и монтируем в него директории
         String imageName = "java-base";
@@ -140,7 +167,7 @@ public class DockerService {
         // Ожидание завершения работы контейнера
         dockerClient.waitContainerCmd(container.getId()).start().awaitStatusCode();
 
-        //
+        // TODO: проверка результата
 
         System.out.println("Контейнер завершил выполнение.");
 

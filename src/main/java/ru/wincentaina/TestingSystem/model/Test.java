@@ -1,36 +1,45 @@
 package ru.wincentaina.TestingSystem.model;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Test {
-    private int testId;
-    private int taskId; // связь с таблицей task
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+
+    @ManyToOne
+    @JoinColumn(name = "task_id", nullable = false) // Внешний ключ task_id
+    private Task task;
+
     private String input;
     private String output;
     private int timeoutMs;
 
-    public Test(){}
+    public Test() {}
 
-    public Test(int testId, int taskId, String input, String output, int timeoutMs) {
-        this.testId = testId;
-        this.taskId = taskId;
+    public Test(int testId, Task task, String input, String output, int timeoutMs) {
+        this.id = testId;
+        this.task = task;
         this.input = input;
         this.output = output;
         this.timeoutMs = timeoutMs;
     }
 
-    public int getTestId() {
-        return testId;
+    public int getId() {
+        return id;
     }
 
-    public void setTestId(int testId) {
-        this.testId = testId;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public int getTaskId() {
-        return taskId;
+    public Task getTask() {
+        return task;
     }
 
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
+    public void setTask(Task task) {
+        this.task = task;
     }
 
     public String getInput() {
