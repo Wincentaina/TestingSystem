@@ -1,5 +1,6 @@
 package ru.wincentaina.TestingSystem.codeExecutorDocker;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -8,7 +9,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
-public class Main {
+public class MainTesting {
     public static void main(String[] args) throws MalformedURLException, ClassNotFoundException {
         DynamicCompiler dk = new DynamicCompiler();
         dk.compile();
@@ -19,16 +20,16 @@ public class Main {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        Task task = null;
+        List<Test> tests = null;
         try {
-            task = objectMapper.readValue(inFile, Task.class);
+            tests = objectMapper.readValue(inFile, new TypeReference<List<Test>>() {});
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (task != null) {
+        if (tests != null) {
             try {
-                TestSuitRunner suitRunner = new TestSuitRunner(task, userCompiledClass);
+                TestSuitRunner suitRunner = new TestSuitRunner(tests, userCompiledClass);
                 List<TestResult> results = suitRunner.runSuit();
                 objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
                 File outFile = new File("/app/output_data/out.json");

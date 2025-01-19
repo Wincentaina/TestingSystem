@@ -124,29 +124,25 @@ public class DockerService {
 
         // TODO: получить тесты из task (все кроме поля output)
         // запишем mock данные
-        Helpers.writeToFile(tmpInpDirPath + "/inp.json", "{\n" +
-                "  \"taskId\": 3,\n" +
-                "  \"description\": \"my description\",\n" +
-                "  \"tests\": [\n" +
+        Helpers.writeToFile(tmpInpDirPath + "/inp.json", "[\n" +
                 "    {\n" +
-                "      \"testId\": 2,\n" +
+                "      \"id\": 2,\n" +
                 "      \"input\": \"inp2\",\n" +
                 "      \"timeoutMs\": 100\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"testId\": 5,\n" +
+                "      \"id\": 5,\n" +
                 "      \"input\": \"inp5\",\n" +
                 "      \"timeoutMs\": 20\n" +
                 "    }\n" +
-                "  ]\n" +
-                "}");
+                "  ] ");
 
         // TODO: получить код из запроса
 
         // запускаем контейнер и монтируем в него директории
         String imageName = "java-base";
         CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
-                .withEnv("USER_CODE=import java.util.Scanner; public class UserClass { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
+                .withEnv("USER_CODE=import java.util.Scanner; public class Main { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
                 .withHostConfig(new HostConfig()
                         .withBinds(
                                 // Монтируем локальные директории в контейнер

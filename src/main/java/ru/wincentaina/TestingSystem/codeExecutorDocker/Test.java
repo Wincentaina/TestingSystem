@@ -1,25 +1,24 @@
 package ru.wincentaina.TestingSystem.codeExecutorDocker;
 
 public class Test {
-    private int testId;
+    private int id;
     private String input;
     private int timeoutMs;
 
     public Test(){}
 
-    public Test(int testId, String input, int timeoutMs) {
-        this.testId = testId;
+    public Test(int id, String input, int timeoutMs) {
+        this.id = id;
         this.input = input;
         this.timeoutMs = timeoutMs;
     }
 
-    // Геттеры и сеттеры
-    public int getTestId() {
-        return testId;
+    public int getId() {
+        return id;
     }
 
-    public void setTestId(int testId) {
-        this.testId = testId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getInput() {
@@ -36,14 +35,5 @@ public class Test {
 
     public void setTimeoutMs(int timeoutMs) {
         this.timeoutMs = timeoutMs;
-    }
-
-    @Override
-    public String toString() {
-        return "Test{" +
-                "testId=" + testId +
-                ", input='" + input + '\'' +
-                ", timeoutMs=" + timeoutMs +
-                '}';
     }
 }
