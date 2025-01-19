@@ -103,10 +103,7 @@ public class DockerService {
 
     public ExecutionResultDto runCodeInContainer(CodeRequestDto request) throws Exception {
         int taskId = request.getTaskId();
-        // TEST
-//        Task task1 = taskService.createTask("desc");
-//        Test test1 = testService.createTest(1, "inp", "inp", 100);
-//        Test test2 = testService.createTest(1, "inp1", "inp2", 20);
+
         Optional<Task> task = taskService.taskById(taskId);
         if (task.isEmpty()) {
             throw new IllegalArgumentException("Task with ID " + taskId + " not found");
@@ -141,12 +138,12 @@ public class DockerService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // TODO: получить код из запроса
 
+        String userCode = request.getCode();
         // запускаем контейнер и монтируем в него директории
         String imageName = "java-base";
         CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
-                .withEnv("USER_CODE=import java.util.Scanner; public class Main { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
+                .withEnv("USER_CODE=" + userCode) // Передача переменной окружения
                 .withHostConfig(new HostConfig()
                         .withBinds(
                                 // Монтируем локальные директории в контейнер
