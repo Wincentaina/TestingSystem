@@ -1,5 +1,7 @@
 package ru.wincentaina.TestingSystem.docker;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -17,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.wincentaina.TestingSystem.dto.CodeRequestDto;
 import ru.wincentaina.TestingSystem.dto.ExecutionResultDto;
+import ru.wincentaina.TestingSystem.dto.TestDTO;
+import ru.wincentaina.TestingSystem.dto.TestInputDTO;
 import ru.wincentaina.TestingSystem.helpers.Helpers;
 import ru.wincentaina.TestingSystem.model.Task;
 import ru.wincentaina.TestingSystem.model.Test;
@@ -25,10 +29,12 @@ import ru.wincentaina.TestingSystem.service.TaskService;
 import ru.wincentaina.TestingSystem.service.TestService;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DockerService {
@@ -97,10 +103,7 @@ public class DockerService {
 
     public ExecutionResultDto runCodeInContainer(CodeRequestDto request) throws Exception {
         int taskId = request.getTaskId();
-        // TEST
-//        Task task1 = taskService.createTask("desc");
-//        Test test1 = testService.createTest(1, "inp", "inp", 100);
-//        Test test2 = testService.createTest(1, "inp1", "inp2", 20);
+
         Optional<Task> task = taskService.taskById(taskId);
         if (task.isEmpty()) {
             throw new IllegalArgumentException("Task with ID " + taskId + " not found");
@@ -122,27 +125,25 @@ public class DockerService {
         Helpers.createFile(tmpInpDirPath + "/inp.json");
         Helpers.createFile(tmpOutDirPath + "/out.json");
 
-        // TODO: получить тесты из task (все кроме поля output)
-        // запишем mock данные
-        Helpers.writeToFile(tmpInpDirPath + "/inp.json", "[\n" +
-                "    {\n" +
-                "      \"id\": 2,\n" +
-                "      \"input\": \"inp2\",\n" +
-                "      \"timeoutMs\": 100\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"id\": 5,\n" +
-                "      \"input\": \"inp5\",\n" +
-                "      \"timeoutMs\": 20\n" +
-                "    }\n" +
-                "  ] ");
+        List<Test> tests = testService.testsByTaskId(taskId);
 
-        // TODO: получить код из запроса
+        List<TestInputDTO> testInputDTOList = tests.stream()
+                .map(test -> new TestInputDTO(test.getId(), test.getInput(), test.getTimeoutMs()))
+                .collect(Collectors.toList());
 
+        // Преобразуем List<TestInputDTO> в JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(tmpInpDirPath + "/inp.json"), testInputDTOList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String userCode = request.getCode();
         // запускаем контейнер и монтируем в него директории
         String imageName = "java-base";
         CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
-                .withEnv("USER_CODE=import java.util.Scanner; public class Main { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); String text = scanner.nextLine(); System.out.println(text); } }") // Передача переменной окружения
+                .withEnv("USER_CODE=" + userCode) // Передача переменной окружения
                 .withHostConfig(new HostConfig()
                         .withBinds(
                                 // Монтируем локальные директории в контейнер
@@ -163,14 +164,46 @@ public class DockerService {
         // Ожидание завершения работы контейнера
         dockerClient.waitContainerCmd(container.getId()).start().awaitStatusCode();
 
-        // TODO: проверка результата
-
         System.out.println("Контейнер завершил выполнение.");
 
-//        Helpers.deleteDirectory(tmpInpDirPath);
-//        Helpers.deleteDirectory(tmpOutDirPath);
+        File outFile = new File(tmpOutDirPath + "/out.json");
 
-        return new ExecutionResultDto("", "", 0);
+        List<TestDTO> results = null;
+        try {
+            results = objectMapper.readValue(outFile, new TypeReference<List<TestDTO>>() {});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int totalAmount = tests.size();
+        int passed = 0;
+        if (results != null) {
+            // TODO: проверка результата: сравнение с объектами из
+            if (tests.size() != results.size()) {
+                throw new RuntimeException("количество полученных тестов не соответствует действительности");
+            }
+            // вдруг будут не по порядку
+            for (int i = 0; i < totalAmount; i++) {
+                for (int j = 0; j < results.size(); j++) {
+                    TestDTO result = results.get(j);
+                    Test test = tests.get(i);
+                    // тот самый тест
+                    if (result.getId() == test.getId()) {
+                        if (result.getOutput().equals(test.getOutput())) {
+                            passed++;
+                        }
+                        break;
+                    }
+                }
+            }
+
+        }
+
+
+        Helpers.deleteDirectory(tmpInpDirPath);
+        Helpers.deleteDirectory(tmpOutDirPath);
+
+        return new ExecutionResultDto(totalAmount, passed, "ok");
     }
 
 }

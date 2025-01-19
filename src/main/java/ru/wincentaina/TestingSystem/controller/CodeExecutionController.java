@@ -29,7 +29,7 @@ public class CodeExecutionController {
             ExecutionResultDto result = codeExecutionService.executeCode(request);
             return new ResponseEntity<>(result, HttpStatus.OK);  // Возвращаем успешный результат
         } catch (Exception e) {
-            return new ResponseEntity<>(new ExecutionResultDto(null, "Error: " + e.getMessage(), -1), HttpStatus.INTERNAL_SERVER_ERROR);  // Возвращаем ошибку
+            return new ResponseEntity<>(new ExecutionResultDto(0, 0, "Error: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);  // Возвращаем ошибку
         }
     }
 }

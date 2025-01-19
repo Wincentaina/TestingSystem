@@ -41,6 +41,6 @@ public class RunTest {
         }
 
         // TODO: добавить обработку ошибок и подсчет timeout
-        return new TestResult("ok", removeLastNewline(testOutput.toString()), 100);
+        return new TestResult( test.getId(), "ok", removeLastNewline(testOutput.toString()), 100);
     }
 }
