@@ -1,16 +1,26 @@
 package ru.wincentaina.TestingSystem.dto;
 
 public class TestDTO {
+    private int id;
     private String status;
     private String output;
     private int timeoutMs;
 
     public TestDTO() {}
 
-    public TestDTO(String status, String output, int timeoutMs) {
+    public TestDTO(int id, String status, String output, int timeoutMs) {
+        this.id = id;
         this.status = status;
         this.output = output;
         this.timeoutMs = timeoutMs;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getStatus() {
@@ -40,7 +50,8 @@ public class TestDTO {
     @Override
     public String toString() {
         return "TestDTO{" +
-                "status='" + status + '\'' +
+                "id=" + id +
+                ", status='" + status + '\'' +
                 ", output='" + output + '\'' +
                 ", timeoutMs=" + timeoutMs +
                 '}';

@@ -166,25 +166,44 @@ public class DockerService {
 
         System.out.println("Контейнер завершил выполнение.");
 
-//        File outFile = new File(tmpOutDirPath + "/out.json");
-//        ObjectMapper objectMapper = new ObjectMapper();
-//
-//        List<TestDTO> results = null;
-//        try {
-//            results = objectMapper.readValue(outFile, new TypeReference<List<TestDTO>>() {});
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        if (results != null) {
-//            // TODO: проверка результата: сравнение с объектами из
-//        }
+        File outFile = new File(tmpOutDirPath + "/out.json");
+
+        List<TestDTO> results = null;
+        try {
+            results = objectMapper.readValue(outFile, new TypeReference<List<TestDTO>>() {});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int totalAmount = tests.size();
+        int passed = 0;
+        if (results != null) {
+            // TODO: проверка результата: сравнение с объектами из
+            if (tests.size() != results.size()) {
+                throw new RuntimeException("количество полученных тестов не соответствует действительности");
+            }
+            // вдруг будут не по порядку
+            for (int i = 0; i < totalAmount; i++) {
+                for (int j = 0; j < results.size(); j++) {
+                    TestDTO result = results.get(j);
+                    Test test = tests.get(i);
+                    // тот самый тест
+                    if (result.getId() == test.getId()) {
+                        if (result.getOutput().equals(test.getOutput())) {
+                            passed++;
+                        }
+                        break;
+                    }
+                }
+            }
+
+        }
 
 
 //        Helpers.deleteDirectory(tmpInpDirPath);
 //        Helpers.deleteDirectory(tmpOutDirPath);
 
-        return new ExecutionResultDto("", "", 0);
+        return new ExecutionResultDto(totalAmount, passed, "ok");
     }
 
 }

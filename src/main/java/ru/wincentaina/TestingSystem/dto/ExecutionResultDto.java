@@ -3,18 +3,18 @@ package ru.wincentaina.TestingSystem.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ExecutionResultDto {
-    @JsonProperty("output")
-    private String output;
+    @JsonProperty("total")
+    private int total;
+
+    @JsonProperty("passed")
+    private int passed;
 
     @JsonProperty("error")
     private String error;
 
-    @JsonProperty("exitCode")
-    private int exitCode;
-
-    public ExecutionResultDto(String output, String error, int exitCode) {
-        this.output = output;
+    public ExecutionResultDto(int total, int passed, String error) {
+        this.total = total;
+        this.passed = passed;
         this.error = error;
-        this.exitCode = exitCode;
     }
 }
