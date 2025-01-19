@@ -200,8 +200,8 @@ public class DockerService {
         }
 
 
-//        Helpers.deleteDirectory(tmpInpDirPath);
-//        Helpers.deleteDirectory(tmpOutDirPath);
+        Helpers.deleteDirectory(tmpInpDirPath);
+        Helpers.deleteDirectory(tmpOutDirPath);
 
         return new ExecutionResultDto(totalAmount, passed, "ok");
     }
