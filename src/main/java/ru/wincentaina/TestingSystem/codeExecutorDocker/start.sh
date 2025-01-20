@@ -6,10 +6,11 @@ if [ -z "$USER_CODE" ]; then
   exit 1
 fi
 
-# Записываем код пользователя в Main.java
-echo "$USER_CODE" > Main.java
 
 javac -cp .:/app/libs/jackson-core-2.18.2.jar:/app/libs/jackson-databind-2.18.2.jar:/app/libs/jackson-annotations-2.18.2.jar -d . *.java
+
+# Записываем код пользователя в Main.java
+echo "$USER_CODE" > Main.java
 
 # Проверяем, был ли успешный компиляции
 if [ $? -ne 0 ]; then

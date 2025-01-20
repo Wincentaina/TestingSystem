@@ -17,6 +17,10 @@ public class TestSuitRunner {
         for (Test test: tests) {
             RunTest runner = new RunTest(test, executableClass);
             TestResult result = runner.run();
+            if (!result.getStatus().equals("ok")) {
+                // Если тест не прошел, выбрасываем исключение с подробным сообщением
+                throw new RuntimeException("Ошибка теста: " + result.getStatus());
+            }
             results.add(result);
         }
         return results;

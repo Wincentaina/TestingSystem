@@ -17,10 +17,7 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.wincentaina.TestingSystem.dto.CodeRequestDto;
-import ru.wincentaina.TestingSystem.dto.ExecutionResultDto;
-import ru.wincentaina.TestingSystem.dto.TestDTO;
-import ru.wincentaina.TestingSystem.dto.TestInputDTO;
+import ru.wincentaina.TestingSystem.dto.*;
 import ru.wincentaina.TestingSystem.helpers.Helpers;
 import ru.wincentaina.TestingSystem.model.Task;
 import ru.wincentaina.TestingSystem.model.Test;
@@ -168,40 +165,51 @@ public class DockerService {
 
         File outFile = new File(tmpOutDirPath + "/out.json");
 
-        List<TestDTO> results = null;
+        ExtendedTestDTO resultI = null;
         try {
-            results = objectMapper.readValue(outFile, new TypeReference<List<TestDTO>>() {});
+            resultI = objectMapper.readValue(outFile, ExtendedTestDTO.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        int totalAmount = tests.size();
-        int passed = 0;
-        if (results != null) {
-            // TODO: проверка результата: сравнение с объектами из
-            if (tests.size() != results.size()) {
-                throw new RuntimeException("количество полученных тестов не соответствует действительности");
-            }
-            // вдруг будут не по порядку
-            for (int i = 0; i < totalAmount; i++) {
-                for (int j = 0; j < results.size(); j++) {
-                    TestDTO result = results.get(j);
-                    Test test = tests.get(i);
-                    // тот самый тест
-                    if (result.getId() == test.getId()) {
-                        if (result.getOutput().equals(test.getOutput())) {
-                            passed++;
-                        }
-                        break;
-                    }
-                }
-            }
-
-        }
-
-
         Helpers.deleteDirectory(tmpInpDirPath);
         Helpers.deleteDirectory(tmpOutDirPath);
+
+        int totalAmount = tests.size();
+        int passed = 0;
+
+        if (resultI.getResults() != null) {
+            List<TestDTO> results = resultI.getResults();
+
+            // Проверяем, совпадает ли количество тестов
+            if (totalAmount != results.size()) {
+                throw new RuntimeException("Количество полученных тестов не соответствует действительности");
+            }
+
+            // Создаем Map для сопоставления ID тестов с их результатами
+            Map<Integer, TestDTO> resultMap = new HashMap<>();
+            for (TestDTO result : results) {
+                resultMap.put(result.getId(), result);
+            }
+
+            // Сравниваем тесты с результатами
+            for (Test test : tests) {
+                TestDTO result = resultMap.get(test.getId());
+
+                if (result == null) {
+                    throw new RuntimeException("Результат для теста с ID " + test.getId() + " отсутствует");
+                }
+
+                if (result.getOutput().equals(test.getOutput())) {
+                    passed++;
+                } else {
+                    System.err.println("Ошибка: Ожидалось " + test.getOutput() +
+                            ", но получено " + result.getOutput() + " для теста ID " + test.getId());
+                }
+            }
+        } else {
+            return new ExecutionResultDto(totalAmount, passed, resultI.getError());
+        }
 
         return new ExecutionResultDto(totalAmount, passed, "ok");
     }
