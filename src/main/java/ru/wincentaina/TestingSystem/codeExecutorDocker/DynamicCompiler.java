@@ -1,13 +1,11 @@
 package ru.wincentaina.TestingSystem.codeExecutorDocker;
 
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
-import java.io.File;
-import java.net.MalformedURLException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 
-// компилирует код
 public class DynamicCompiler {
     private Class<?> dynamicClass;
 
@@ -19,13 +17,28 @@ public class DynamicCompiler {
         return dynamicClass;
     }
 
-    public void compile() throws ClassNotFoundException, MalformedURLException {
+    public void compile() throws ClassNotFoundException, IOException {
         File sourceFile = new File("Main.java");
+
         // Компиляция кода
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        int compilationResult = compiler.run(null, null, null, sourceFile.getPath());
+
+        // Поток для захвата ошибок компиляции
+        ByteArrayOutputStream errorOutput = new ByteArrayOutputStream();
+        PrintStream errorStream = new PrintStream(errorOutput);
+
+        // Запуск компилятора, передавая потоки
+        int compilationResult = compiler.run(
+                System.in,                   // Ввод
+                System.out,                  // Вывод
+                errorStream,                 // Поток ошибок
+                sourceFile.getPath()         // Путь к исходному файлу
+        );
+
+        // Если компиляция не удалась, выбрасываем исключение с ошибками компиляции
         if (compilationResult != 0) {
-            throw new CompilationException("Ошибка компиляции");
+            String errors = errorOutput.toString();
+            throw new CompilationException("Ошибка компиляции: " + errors);
         }
 
         // Создание временной директории для хранения скомпилированного класса
@@ -36,12 +49,10 @@ public class DynamicCompiler {
 
         // Загрузка скомпилированного класса
         URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{tempDir.toURI().toURL()});
-        try {
-            Class<?> clazz = Class.forName("Main", true, classLoader);
-            setDynamicClass(clazz);
-        } catch (ClassNotFoundException e) {
-            throw new LoadException("Класс Main не найден. Убедитесь, что имя класса совпадает с 'Main'");
+        Class<?> clazz = Class.forName("Main", true, classLoader);
+        if (clazz == null) {
+            throw new LoadException("У исполняемого класса должно быть имя Main");
         }
+        setDynamicClass(clazz);
     }
-
 }

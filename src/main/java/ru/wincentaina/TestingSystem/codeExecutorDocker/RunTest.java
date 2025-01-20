@@ -32,7 +32,10 @@ public class RunTest {
 
             Method mainMethod = executableClass.getMethod("main", String[].class);
             mainMethod.invoke(null, (Object) new String[]{});
-        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause(); // Извлекаем реальную причину ошибки
+            return new TestResult(test.getId(), cause.getMessage(), null, 0);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             return new TestResult(test.getId(), e.getMessage(), null, 0);
         } finally {
             System.setIn(originalIn);
@@ -40,6 +43,6 @@ public class RunTest {
         }
 
         // TODO: добавить подсчет timeout
-        return new TestResult( test.getId(), "ok", removeLastNewline(testOutput.toString()), 100);
+        return new TestResult(test.getId(), "ok", removeLastNewline(testOutput.toString()), 100);
     }
 }
