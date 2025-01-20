@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-// TODO: прописать команду в контейнере echo "$USER_CODE" | base64 -d > UserCode.java
 // компилирует код
 public class DynamicCompiler {
     private Class<?> dynamicClass;
@@ -26,7 +25,7 @@ public class DynamicCompiler {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         int compilationResult = compiler.run(null, null, null, sourceFile.getPath());
         if (compilationResult != 0) {
-            throw new RuntimeException("Ошибка компиляции");
+            throw new CompilationException("Ошибка компиляции");
         }
 
         // Создание временной директории для хранения скомпилированного класса
@@ -37,8 +36,12 @@ public class DynamicCompiler {
 
         // Загрузка скомпилированного класса
         URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{tempDir.toURI().toURL()});
-        Class<?> clazz = Class.forName("Main", true, classLoader);
-        setDynamicClass(clazz);
+        try {
+            Class<?> clazz = Class.forName("Main", true, classLoader);
+            setDynamicClass(clazz);
+        } catch (ClassNotFoundException e) {
+            throw new LoadException("Класс Main не найден. Убедитесь, что имя класса совпадает с 'Main'");
+        }
     }
 
 }

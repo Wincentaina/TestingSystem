@@ -17,6 +17,9 @@ public class TestSuitRunner {
         for (Test test: tests) {
             RunTest runner = new RunTest(test, executableClass);
             TestResult result = runner.run();
+            if (!result.getStatus().equals("ok")) {
+                throw new RuntimeException(result.getStatus());
+            }
             results.add(result);
         }
         return results;

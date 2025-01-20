@@ -25,22 +25,21 @@ public class RunTest {
         ByteArrayOutputStream testOutput = new ByteArrayOutputStream();
         PrintStream originalOut = System.out;
         InputStream originalIn = System.in;
+
         try {
             System.setIn(testInput);
             System.setOut(new PrintStream(testOutput));
 
             Method mainMethod = executableClass.getMethod("main", String[].class);
             mainMethod.invoke(null, (Object) new String[]{});
-        } catch (InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            return new TestResult(test.getId(), e.getMessage(), null, 0);
         } finally {
             System.setIn(originalIn);
             System.setOut(originalOut);
         }
 
-        // TODO: добавить обработку ошибок и подсчет timeout
+        // TODO: добавить подсчет timeout
         return new TestResult( test.getId(), "ok", removeLastNewline(testOutput.toString()), 100);
     }
 }

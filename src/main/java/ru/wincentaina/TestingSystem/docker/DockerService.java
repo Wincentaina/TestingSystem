@@ -17,10 +17,7 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.wincentaina.TestingSystem.dto.CodeRequestDto;
-import ru.wincentaina.TestingSystem.dto.ExecutionResultDto;
-import ru.wincentaina.TestingSystem.dto.TestDTO;
-import ru.wincentaina.TestingSystem.dto.TestInputDTO;
+import ru.wincentaina.TestingSystem.dto.*;
 import ru.wincentaina.TestingSystem.helpers.Helpers;
 import ru.wincentaina.TestingSystem.model.Task;
 import ru.wincentaina.TestingSystem.model.Test;
@@ -168,16 +165,18 @@ public class DockerService {
 
         File outFile = new File(tmpOutDirPath + "/out.json");
 
-        List<TestDTO> results = null;
+//        List<TestDTO> results = null;
+        ExtendedTestDTO resultI = null;
         try {
-            results = objectMapper.readValue(outFile, new TypeReference<List<TestDTO>>() {});
+            resultI = objectMapper.readValue(outFile, ExtendedTestDTO.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         int totalAmount = tests.size();
         int passed = 0;
-        if (results != null) {
+        if (resultI != null) {
+            List<TestDTO> results = resultI.getResults();
             // TODO: проверка результата: сравнение с объектами из
             if (tests.size() != results.size()) {
                 throw new RuntimeException("количество полученных тестов не соответствует действительности");
@@ -200,8 +199,8 @@ public class DockerService {
         }
 
 
-        Helpers.deleteDirectory(tmpInpDirPath);
-        Helpers.deleteDirectory(tmpOutDirPath);
+//        Helpers.deleteDirectory(tmpInpDirPath);
+//        Helpers.deleteDirectory(tmpOutDirPath);
 
         return new ExecutionResultDto(totalAmount, passed, "ok");
     }

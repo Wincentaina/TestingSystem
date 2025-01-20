@@ -11,14 +11,24 @@ import java.util.List;
 
 public class MainTesting {
     public static void main(String[] args) throws MalformedURLException, ClassNotFoundException {
-        DynamicCompiler dk = new DynamicCompiler();
-        dk.compile();
-        Class<?> userCompiledClass = dk.getDynamicClass();
+        File outFile = new File("/app/output_data/out.json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
+        DynamicCompiler dk = new DynamicCompiler();
+        try {
+            dk.compile();
+        } catch (CompilationException | LoadException e) {
+            Results results = new Results(e.getMessage(), null);
+            try {
+                objectMapper.writeValue(outFile, results);
+            } catch (IOException err) {
+                err.printStackTrace();
+            }
+        }
+        Class<?> userCompiledClass = dk.getDynamicClass();
         // парсим прешедший json
         File inFile = new File("/app/input_data/inp.json");
-
-        ObjectMapper objectMapper = new ObjectMapper();
 
         List<Test> tests = null;
         try {
@@ -27,22 +37,32 @@ public class MainTesting {
             e.printStackTrace();
         }
 
+
         if (tests != null) {
             try {
                 TestSuitRunner suitRunner = new TestSuitRunner(tests, userCompiledClass);
                 List<TestResult> results = suitRunner.runSuit();
-                objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-                File outFile = new File("/app/output_data/out.json");
+                Results resultsToOut = new Results("ok", results);
                 try {
-                    objectMapper.writeValue(outFile, results);
+                    objectMapper.writeValue(outFile, resultsToOut);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (RuntimeException e) {
+                Results results = new Results(e.getMessage(), null);
+                try {
+                    objectMapper.writeValue(outFile, results);
+                } catch (IOException err) {
+                    err.printStackTrace();
+                }
             }
         } else {
-            System.out.println("проблема с загрузкой тестов");
+            Results results = new Results("проблема с загрузкой тестов", null);
+            try {
+                objectMapper.writeValue(outFile, results);
+            } catch (IOException err) {
+                err.printStackTrace();
+            }
         }
 
     }
