@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.wincentaina.TestingSystem.dto.*;
 import ru.wincentaina.TestingSystem.helpers.Helpers;
+import ru.wincentaina.TestingSystem.helpers.JsonSanitizer;
 import ru.wincentaina.TestingSystem.model.Task;
 import ru.wincentaina.TestingSystem.model.Test;
 import ru.wincentaina.TestingSystem.repository.TaskRepository;
@@ -137,11 +138,17 @@ public class DockerService {
         }
 
         String userCode = request.getCode();
+        userCode = JsonSanitizer.sanitizeJsonString(userCode);
+
         // запускаем контейнер и монтируем в него директории
         String imageName = "java-base";
         CreateContainerResponse container = dockerClient.createContainerCmd(imageName)
                 .withEnv("USER_CODE=" + userCode) // Передача переменной окружения
                 .withHostConfig(new HostConfig()
+                        .withMemory(512 * 1024 * 1024L)
+                        .withCpuShares(512)
+                        .withPrivileged(false)
+                        .withNetworkMode("none")
                         .withBinds(
                                 // Монтируем локальные директории в контейнер
                                 new Bind(tmpInpDirPath, new Volume("/app/input_data")),
