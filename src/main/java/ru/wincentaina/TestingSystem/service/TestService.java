@@ -44,4 +44,12 @@ public class TestService {
 
         return testRepository.save(test);
     }
+
+    public void removeTestById(int id) {
+        Optional<Test> test =  testRepository.findById((long) id);
+        if (test.isEmpty()) {
+            throw new RuntimeException("Теста с id " + id + " не существует");
+        }
+        testRepository.delete(test.get());
+    }
 }

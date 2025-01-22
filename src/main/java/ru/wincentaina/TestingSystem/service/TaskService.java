@@ -31,4 +31,12 @@ public class TaskService {
 
         return taskRepository.save(task);
     }
+
+    public void removeTaskById(int id) {
+        Optional<Task> task = taskRepository.findById((long) id);
+        if (task.isEmpty()) {
+            throw new RuntimeException("Задачи с id " + id + " не существует");
+        }
+        taskRepository.delete(task.get());
+    }
 }
